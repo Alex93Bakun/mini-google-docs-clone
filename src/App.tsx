@@ -1,28 +1,39 @@
 import './App.css';
 
-import React from 'react';
+import React, { useMemo } from 'react';
+import { BaseEditor, createEditor } from 'slate';
+import { Editable, ReactEditor, Slate, withReact } from 'slate-react';
 
-import logo from './logo.svg';
+type CustomElement = { type: 'paragraph'; children: CustomText[] };
+type CustomText = { text: string };
 
-function App() {
-    return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
-        </div>
-    );
+declare module 'slate' {
+    interface CustomTypes {
+        Editor: BaseEditor & ReactEditor;
+        Element: CustomElement;
+        Text: CustomText;
+    }
 }
+
+const initialValue = [
+    {
+        type: 'paragraph',
+        children: [{ text: 'A line of text in a paragraph.' }],
+    } as any,
+];
+
+const App = () => {
+    const editor = useMemo(() => withReact(createEditor()), []);
+
+    return (
+        <Slate editor={editor} value={initialValue}>
+            <Editable
+                onKeyDown={(event) => {
+                    console.log(event.key);
+                }}
+            />
+        </Slate>
+    );
+};
 
 export default App;
